@@ -1,30 +1,30 @@
 #!/usr/bin/env python3
 # https://adventofcode.com/2022/day/1
-from logging import getLogger
+from typing import IO, Iterator
 
-from solutions import get_input_data
+from . import INPUTS_DIR
 
-logger = getLogger(__file__)
+
+def get_elf_calories(input_fp: IO) -> Iterator[int]:
+    def next_elf_calories():
+        calories = 0
+        while line := next(input_fp).strip():
+            calories += int(line)
+        return calories
+
+    while True:
+        try:
+            yield next_elf_calories()
+        # next() raises StopIteration when it reaches EOF
+        except StopIteration:
+            break
 
 
 def main():
-    input = get_input_data(1)
-    elf_caloreies = count_calories(input)
-    print('Part 1:', elf_caloreies[0])
-    print('Part 2:', sum(elf_caloreies[:3]))
-
-
-def count_calories(input: str) -> list[int]:
-    elf_calories = []
-    current_elf = 0
-    for line in input.splitlines():
-        line = line.strip()
-        if not line:
-            elf_calories.append(current_elf)
-            current_elf = 0
-        else:
-            current_elf += int(line)
-    return sorted(elf_calories, reverse=True)
+    with open(INPUTS_DIR / 'input_1') as fp:
+        elf_calories = sorted(get_elf_calories(fp), reverse=True)
+    print('Part 1:', elf_calories[0])
+    print('Part 2:', sum(elf_calories[:3]))
 
 
 if __name__ == '__main__':
