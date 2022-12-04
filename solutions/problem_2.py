@@ -61,11 +61,7 @@ class Round:
 
     @classmethod
     def parse(cls, line: str, by_result: bool = False) -> 'Round':
-        return (
-            cls._parse_by_result(line)
-            if by_result
-            else cls._parse_by_player_shape(line)
-        )
+        return cls._parse_by_result(line) if by_result else cls._parse_by_player_shape(line)
 
     @classmethod
     def _parse_by_player_shape(cls, line: str) -> 'Round':
