@@ -22,7 +22,7 @@ MOVE_PATTERN = re.compile('move (\d+) from (\d+) to (\d+)')
 """
 
 
-def process_crates(lines: list[str]) -> str:
+def process_crates(lines: list[str], multicrate_moves: bool = False) -> str:
     lines = iter(lines)
 
     # Parse crate text into stacks (bottom crates first)
@@ -30,21 +30,19 @@ def process_crates(lines: list[str]) -> str:
     while '[' in (line := next(lines)):
         crate_rows.append(parse_crate_line(line))
     stacks = [get_stack(crate_rows, col) for col in range(len(crate_rows[0]))]
-
-    # Parse moves (count, source, destination)
-    moves = []
-    while line := next(lines, None):
-        match = MOVE_PATTERN.match(line)
-        if match:
-            moves.append([int(i) for i in match.groups()])
     logger.debug(_str_stacks(stacks))
 
     # Process crate moves
-    for move in moves:
-        count, src, dest = move
+    while line := next(lines, None):
+        match = MOVE_PATTERN.match(line)
+        if not match:
+            continue
+        count, src, dest = [int(i) for i in match.groups()]
         logger.debug(f'Moving {count} crates from {src} to {dest}')
-        for _ in range(count):
-            stacks[dest - 1].append(stacks[src - 1].pop())
+        moved_crates = [stacks[src - 1].pop() for _ in range(count)]
+        if multicrate_moves:
+            moved_crates.reverse()
+        stacks[dest - 1].extend(moved_crates)
 
     logger.debug(_str_stacks(stacks))
     return ''.join([stack.pop() for stack in stacks])
@@ -70,6 +68,7 @@ def main():
     with open(INPUTS_DIR / 'input_5') as fp:
         lines = fp.readlines()
     logger.info(f'Part 1: {process_crates(lines)}')
+    logger.info(f'Part 2: {process_crates(lines, multicrate_moves=True)}')
 
 
 if __name__ == '__main__':
