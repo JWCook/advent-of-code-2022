@@ -8,6 +8,7 @@ def find_marker(message: str, marker_len: int) -> int:
 
 
 if __name__ == '__main__':
-    with open(INPUTS_DIR / 'input_5') as fp:
+    with open(INPUTS_DIR / 'input_6') as fp:
         message = fp.read()
     print(f'Part 1: {find_marker(message, 4)}')
+    print(f'Part 2: {find_marker(message, 14)}')
