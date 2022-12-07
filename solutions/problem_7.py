@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# https://adventofcode.com/2022/day/7
 from dataclasses import dataclass, field
 from logging import getLogger
 
@@ -79,9 +81,27 @@ def get_subdir_totals(root: Directory, lvl: int = 0) -> int:
     return total
 
 
+def find_dir_to_delete(root: Directory) -> Directory:
+    fs_size = 70000000
+    space_required = 30000000
+    space_to_delete = space_required - (fs_size - root.get_size())
+    dirs = sorted(find_candidate_dirs(root, space_to_delete), key=lambda d: d.get_size())
+    return dirs[0]
+
+
+def find_candidate_dirs(root: Directory, space_to_delete: int) -> list[Directory]:
+    candidate_dirs = []
+    if root.get_size() > space_to_delete:
+        candidate_dirs.append(root)
+    for subdir in root.get_subdirs():
+        candidate_dirs.extend(find_candidate_dirs(subdir, space_to_delete))
+    return candidate_dirs
+
+
 if __name__ == '__main__':
     with open(INPUTS_DIR / 'input_7') as fp:
         data = fp.read()
+
     root = count_directory_sizes(data)
-    total = get_subdir_totals(root)
-    logger.info(f'Part 1: {total}')
+    logger.info(f'Part 1: {get_subdir_totals(root)}')
+    logger.info(f'Part 2: {find_dir_to_delete(root).get_size()}')

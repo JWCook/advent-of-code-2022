@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# https://adventofcode.com/2022/day/6
 from solutions import INPUTS_DIR
 
 
