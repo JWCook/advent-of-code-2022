@@ -27,7 +27,7 @@ class Point:
         return f'({self.x:>3}, {self.y:>3})'
 
 
-def count_visited(data: str, n_segments: int = 2) -> int:
+def find_visited(data: str, n_segments: int) -> set[tuple[int, int]]:
     visited = {(0, 0)}
     rope_segments = [Point() for _ in range(n_segments)]
 
@@ -41,7 +41,7 @@ def count_visited(data: str, n_segments: int = 2) -> int:
                 rope_segments[i] = move_segment(rope_segments[i - 1], rope_segments[i])
             visited.add((rope_segments[-1].x, rope_segments[-1].y))
 
-    return len(visited)
+    return visited
 
 
 def move_segment(head: Point, tail: Point) -> Point:
@@ -62,5 +62,5 @@ def move_segment(head: Point, tail: Point) -> Point:
 
 if __name__ == '__main__':
     data = read_input(9)
-    logger.info(f'Part 1: {count_visited(data, 2)}')
-    logger.info(f'Part 2: {count_visited(data, 10)}')
+    logger.info(f'Part 1: {len(find_visited(data, 2))}')
+    logger.info(f'Part 2: {len(find_visited(data, 10))}')
