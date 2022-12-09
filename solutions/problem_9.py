@@ -5,70 +5,66 @@ from logging import getLogger
 from solutions import INPUTS_DIR
 
 logger = getLogger(__name__)
+logger.setLevel('DEBUG')
 
-Coords = tuple[int, int]
+
+class Coord:
+    """pair of coordinates"""
+
+    def __init__(self, x: int = 0, y: int = 0):
+        self.x = x
+        self.y = y
+
+    def move(self, direction: str, distance: int = 1) -> None:
+        if direction == 'U':
+            self.y += distance
+        elif direction == 'D':
+            self.y -= distance
+        elif direction == 'L':
+            self.x -= distance
+        elif direction == 'R':
+            self.x += distance
+
+    def __str__(self) -> str:
+        return f'({self.x:>3}, {self.y:>3})'
 
 
-def count_moves(data: str) -> int:
-    coords_visited = {(0, 0)}
-    head_x = head_y = tail_x = tail_y = 0
+def count_visited(data: str) -> int:
+    visited = {(0, 0)}
+    head = Coord()
+    tail = Coord()
+
     # for line in list(data.splitlines())[:20]:
     for line in data.splitlines():
-        direction, distance = line[0], int(line[2])
-        print(f'[{len(coords_visited):>4}] {direction} {distance}')
-        # print(f'{direction} {distance} ({head_x}, {head_y}) ({tail_x}, {tail_y})')
-        if direction == 'U':
-            for _ in range(distance):
-                head_y += 1
-                tail_x, tail_y = adjust_tail((head_x, head_y), (tail_x, tail_y))
-                coords_visited.add((tail_x, tail_y))
-        elif direction == 'D':
-            for _ in range(distance):
-                head_y -= 1
-                tail_x, tail_y = adjust_tail((head_x, head_y), (tail_x, tail_y))
-                coords_visited.add((tail_x, tail_y))
-        elif direction == 'L':
-            for _ in range(distance):
-                head_x -= 1
-                tail_x, tail_y = adjust_tail((head_x, head_y), (tail_x, tail_y))
-                coords_visited.add((tail_x, tail_y))
-        elif direction == 'R':
-            for _ in range(distance):
-                head_x += 1
-                tail_x, tail_y = adjust_tail((head_x, head_y), (tail_x, tail_y))
-                coords_visited.add((tail_x, tail_y))
+        direction, distance = line.split()
+        logger.debug(f'[{len(visited):>4}] {direction} {distance}')
+        for _ in range(int(distance)):
+            head.move(direction)
+            tail = move_tail(head, tail)
+            visited.add((tail.x, tail.y))
 
-    return len(coords_visited)
+    return len(visited)
 
 
-def adjust_tail(head: Coords, tail: Coords) -> Coords:
-    print(f'  ({head[0]}, {head[1]}) ({tail[0]}, {tail[1]})')
-    # if is_adjacent(head, tail):
-    #     print('    adjacent')
-    #     return tail
+def move_tail(head: Coord, tail: Coord) -> Coord:
+    x_diff = abs(head.x - tail.x)
+    y_diff = abs(head.y - tail.y)
+    logger.debug(f'  {head} {tail} (Diff: {x_diff}, {y_diff})')
+    if max(x_diff, y_diff) <= 1:
+        return tail
 
-    x_diff = head[0] - tail[0]
-    y_diff = head[1] - tail[1]
-    print(f'    Diff: {x_diff}, {y_diff}')
+    if x_diff > 0:
+        tail.move('R' if head.x > tail.x else 'L')
+    if y_diff > 0:
+        tail.move('U' if head.y > tail.y else 'D')
 
-    if abs(x_diff) > 1:
-        adjust = 1 if head[0] > tail[0] else -1
-        tail_x = tail[0] + adjust
-        print(f'        tail_x: {tail[0]} -> {tail_x}')
-        tail = (tail_x, tail[1])
-    if abs(y_diff) > 1:
-        adjust = 1 if head[1] > tail[1] else -1
-        tail_y = tail[1] + adjust
-        print(f'        tail_y: {tail[1]} -> {tail_y}')
-        tail = (tail[0], tail_y)
+    logger.debug(f'  Move:       {tail}')
     return tail
 
 
-def is_adjacent(head: Coords, tail: Coords) -> bool:
-    return abs(head[0] - tail[0]) <= 1 and abs(head[1] - tail[1]) <= 1
-
-
+# 2985
+# 2975
 if __name__ == '__main__':
     with open(INPUTS_DIR / 'input_9') as fp:
         data = fp.read()
-    logger.info(f'Part 1: {count_moves(data)}')
+    logger.info(f'Part 1: {count_visited(data)}')
