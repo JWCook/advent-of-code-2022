@@ -28,7 +28,7 @@ class Point:
 
 
 def find_visited(data: str, n_segments: int) -> set[tuple[int, int]]:
-    visited = {(0, 0)}
+    visited = [(0, 0)]
     rope_segments = [Point() for _ in range(n_segments)]
 
     for line in data.splitlines():
@@ -39,7 +39,7 @@ def find_visited(data: str, n_segments: int) -> set[tuple[int, int]]:
             rope_segments[0].move(direction)
             for i in range(1, n_segments):
                 rope_segments[i] = move_segment(rope_segments[i - 1], rope_segments[i])
-            visited.add((rope_segments[-1].x, rope_segments[-1].y))
+            visited.append((rope_segments[-1].x, rope_segments[-1].y))
 
     return visited
 
@@ -62,5 +62,5 @@ def move_segment(head: Point, tail: Point) -> Point:
 
 if __name__ == '__main__':
     data = read_input(9)
-    logger.info(f'Part 1: {len(find_visited(data, 2))}')
-    logger.info(f'Part 2: {len(find_visited(data, 10))}')
+    logger.info(f'Part 1: {len(set(find_visited(data, 2)))}')
+    logger.info(f'Part 2: {len(set(find_visited(data, 10)))}')
