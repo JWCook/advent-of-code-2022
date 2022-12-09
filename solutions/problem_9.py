@@ -5,12 +5,9 @@ from logging import getLogger
 from solutions import INPUTS_DIR
 
 logger = getLogger(__name__)
-logger.setLevel('DEBUG')
 
 
 class Coord:
-    """pair of coordinates"""
-
     def __init__(self, x: int = 0, y: int = 0):
         self.x = x
         self.y = y
@@ -29,24 +26,23 @@ class Coord:
         return f'({self.x:>3}, {self.y:>3})'
 
 
-def count_visited(data: str) -> int:
+def count_visited(data: str, n_segments: int = 2) -> int:
     visited = {(0, 0)}
-    head = Coord()
-    tail = Coord()
+    rope = [Coord() for _ in range(n_segments)]
 
-    # for line in list(data.splitlines())[:20]:
     for line in data.splitlines():
         direction, distance = line.split()
         logger.debug(f'[{len(visited):>4}] {direction} {distance}')
         for _ in range(int(distance)):
-            head.move(direction)
-            tail = move_tail(head, tail)
-            visited.add((tail.x, tail.y))
+            rope[0].move(direction)
+            for i in range(1, n_segments):
+                rope[i] = move_segment(rope[i - 1], rope[i])
+            visited.add((rope[-1].x, rope[-1].y))
 
     return len(visited)
 
 
-def move_tail(head: Coord, tail: Coord) -> Coord:
+def move_segment(head: Coord, tail: Coord) -> Coord:
     x_diff = abs(head.x - tail.x)
     y_diff = abs(head.y - tail.y)
     logger.debug(f'  {head} {tail} (Diff: {x_diff}, {y_diff})')
@@ -62,9 +58,8 @@ def move_tail(head: Coord, tail: Coord) -> Coord:
     return tail
 
 
-# 2985
-# 2975
 if __name__ == '__main__':
     with open(INPUTS_DIR / 'input_9') as fp:
         data = fp.read()
-    logger.info(f'Part 1: {count_visited(data)}')
+    logger.info(f'Part 1: {count_visited(data, 2)}')
+    logger.info(f'Part 2: {count_visited(data, 10)}')
