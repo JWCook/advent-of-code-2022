@@ -1,10 +1,15 @@
-import logging
 from pathlib import Path
+from sys import stderr
+
+from loguru import logger
+
+# Comment out these lines for debug logs
+logger.remove()
+logger.add(stderr, level='INFO')
 
 INPUTS_DIR = Path(__file__).parent.parent / 'inputs'
-logging.basicConfig(level='INFO')
 
 
-def get_input_data(day: int) -> str:
+def read_input(day: int) -> str:
     with open(INPUTS_DIR / f'input_{day}') as f:
         return f.read()

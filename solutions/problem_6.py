@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 # https://adventofcode.com/2022/day/6
-from solutions import INPUTS_DIR
+from loguru import logger
+
+from . import read_input
 
 
-def find_marker(message: str, marker_len: int) -> int:
-    for i in range(len(message)):
-        if len(set(message[i : i + marker_len])) == marker_len:
+def find_marker(data: str, marker_len: int) -> int:
+    for i in range(len(data)):
+        if len(set(data[i : i + marker_len])) == marker_len:
             return i + marker_len
 
 
 if __name__ == '__main__':
-    with open(INPUTS_DIR / 'input_6') as fp:
-        message = fp.read()
-    print(f'Part 1: {find_marker(message, 4)}')
-    print(f'Part 2: {find_marker(message, 14)}')
+    data = read_input(6)
+    logger.info(f'Part 1: {find_marker(data, 4)}')
+    logger.info(f'Part 2: {find_marker(data, 14)}')

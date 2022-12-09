@@ -1,26 +1,27 @@
 #!/usr/bin/env python3
-# https://adventofcode.com/2022/day/8
-from logging import getLogger
+# https://adventofcode.com/2022/day/9
+from dataclasses import dataclass, field
 
-from solutions import INPUTS_DIR
+from loguru import logger
 
-logger = getLogger(__name__)
+from . import read_input
 
 
-class Coord:
-    def __init__(self, x: int = 0, y: int = 0):
-        self.x = x
-        self.y = y
+@dataclass
+class Point:
+    x: int = field(default=0)
+    y: int = field(default=0)
 
-    def move(self, direction: str, distance: int = 1) -> None:
-        if direction == 'U':
-            self.y += distance
-        elif direction == 'D':
-            self.y -= distance
-        elif direction == 'L':
-            self.x -= distance
-        elif direction == 'R':
-            self.x += distance
+    def move(self, direction: str):
+        match direction:
+            case 'U':
+                self.y += 1
+            case 'D':
+                self.y -= 1
+            case 'L':
+                self.x -= 1
+            case 'R':
+                self.x += 1
 
     def __str__(self) -> str:
         return f'({self.x:>3}, {self.y:>3})'
@@ -28,24 +29,25 @@ class Coord:
 
 def count_visited(data: str, n_segments: int = 2) -> int:
     visited = {(0, 0)}
-    rope = [Coord() for _ in range(n_segments)]
+    rope_segments = [Point() for _ in range(n_segments)]
 
     for line in data.splitlines():
         direction, distance = line.split()
         logger.debug(f'[{len(visited):>4}] {direction} {distance}')
+
         for _ in range(int(distance)):
-            rope[0].move(direction)
+            rope_segments[0].move(direction)
             for i in range(1, n_segments):
-                rope[i] = move_segment(rope[i - 1], rope[i])
-            visited.add((rope[-1].x, rope[-1].y))
+                rope_segments[i] = move_segment(rope_segments[i - 1], rope_segments[i])
+            visited.add((rope_segments[-1].x, rope_segments[-1].y))
 
     return len(visited)
 
 
-def move_segment(head: Coord, tail: Coord) -> Coord:
+def move_segment(head: Point, tail: Point) -> Point:
     x_diff = abs(head.x - tail.x)
     y_diff = abs(head.y - tail.y)
-    logger.debug(f'  {head} {tail} (Diff: {x_diff}, {y_diff})')
+    logger.debug(f'  {head} {tail}')
     if max(x_diff, y_diff) <= 1:
         return tail
 
@@ -59,7 +61,6 @@ def move_segment(head: Coord, tail: Coord) -> Coord:
 
 
 if __name__ == '__main__':
-    with open(INPUTS_DIR / 'input_9') as fp:
-        data = fp.read()
+    data = read_input(9)
     logger.info(f'Part 1: {count_visited(data, 2)}')
     logger.info(f'Part 2: {count_visited(data, 10)}')

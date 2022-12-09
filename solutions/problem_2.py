@@ -2,12 +2,10 @@
 # https://adventofcode.com/2022/day/2
 from dataclasses import dataclass, field
 from enum import Enum
-from logging import getLogger
-from typing import IO, Iterator
 
-from . import INPUTS_DIR
+from loguru import logger
 
-logger = getLogger(__name__)
+from . import read_input
 
 
 class Shape(Enum):
@@ -120,22 +118,14 @@ class Round:
         )
 
 
-def parse_rounds(input_fp: IO, by_result: bool) -> Iterator[Round]:
-    while line := input_fp.readline().strip():
-        yield Round.parse(line, by_result=by_result)
-
-
-def tally_scores(by_result: bool) -> int:
-    score = 0
-    with open(INPUTS_DIR / 'input_2') as f:
-        for round in parse_rounds(f, by_result):
-            score += round.get_score()
-    return score
+def tally_scores(data: str, by_result: bool) -> int:
+    return sum(Round.parse(line, by_result=by_result).get_score() for line in data.splitlines())
 
 
 def main():
-    logger.info(f'Part 1: {tally_scores(by_result=False)}')
-    logger.info(f'Part 2: {tally_scores(by_result=True)}')
+    data = read_input(2)
+    logger.info(f'Part 1: {tally_scores(data, by_result=False)}')
+    logger.info(f'Part 2: {tally_scores(data, by_result=True)}')
 
 
 if __name__ == '__main__':

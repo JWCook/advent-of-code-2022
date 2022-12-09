@@ -1,34 +1,30 @@
 #!/usr/bin/env python3
 # https://adventofcode.com/2022/day/1
-from logging import getLogger
-from typing import IO, Iterator
+from typing import Iterator
 
-from . import INPUTS_DIR
+from loguru import logger
 
-logger = getLogger(__name__)
+from . import read_input
 
 
-def get_elf_calories(input_fp: IO) -> Iterator[int]:
+def get_elf_calories(data: str) -> Iterator[int]:
+    input_iter = iter(data.splitlines())
+
     def next_elf_calories():
         calories = 0
-        while line := next(input_fp).strip():
+        while line := next(input_iter).strip():
             calories += int(line)
         return calories
 
     while True:
         try:
             yield next_elf_calories()
-        # next() raises StopIteration when it reaches EOF
         except StopIteration:
             break
 
 
-def main():
-    with open(INPUTS_DIR / 'input_1') as fp:
-        elf_calories = sorted(get_elf_calories(fp), reverse=True)
+if __name__ == '__main__':
+    data = read_input(1)
+    elf_calories = sorted(get_elf_calories(data), reverse=True)
     logger.info(f'Part 1: {elf_calories[0]}')
     logger.info(f'Part 2: {sum(elf_calories[:3])}')
-
-
-if __name__ == '__main__':
-    main()

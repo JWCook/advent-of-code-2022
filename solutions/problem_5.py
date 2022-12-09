@@ -2,28 +2,16 @@
 # https://adventofcode.com/2022/day/5
 import re
 from collections import deque
-from logging import getLogger
 
-from . import INPUTS_DIR
+from loguru import logger
 
-logger = getLogger(__name__)
+from . import read_input
 
 MOVE_PATTERN = re.compile('move (\d+) from (\d+) to (\d+)')
 
-"""
-[T]     [Q]             [S]
-[R]     [M]             [L] [V] [G]
-[D] [V] [V]             [Q] [N] [C]
-[H] [T] [S] [C]         [V] [D] [Z]
-[Q] [J] [D] [M]     [Z] [C] [M] [F]
-[N] [B] [H] [N] [B] [W] [N] [J] [M]
-[P] [G] [R] [Z] [Z] [C] [Z] [G] [P]
-[B] [W] [N] [P] [D] [V] [G] [L] [T]
-"""
 
-
-def process_crates(lines: list[str], multicrate_moves: bool = False) -> str:
-    lines = iter(lines)
+def process_crates(data: str, multicrate_moves: bool = False) -> str:
+    lines = iter(data.splitlines())
 
     # Parse crate text into stacks (bottom crates first)
     crate_rows = []
@@ -33,7 +21,7 @@ def process_crates(lines: list[str], multicrate_moves: bool = False) -> str:
     logger.debug(_str_stacks(stacks))
 
     # Process crate moves
-    while line := next(lines, None):
+    for line in lines:
         match = MOVE_PATTERN.match(line)
         if not match:
             continue
@@ -50,7 +38,7 @@ def process_crates(lines: list[str], multicrate_moves: bool = False) -> str:
 
 def parse_crate_line(line: str) -> list[str]:
     """Parse a row of 'crates' into a list; 0 = empty"""
-    line = line.replace('    ', ' [0]').replace('\n', '')
+    line = line.replace('    ', ' [0]')
     line = re.sub(r'[ \[\]]', '', line)
     return list(line)
 
@@ -64,12 +52,7 @@ def _str_stacks(stacks):
     return '\n' + '\n'.join(stack_strs)
 
 
-def main():
-    with open(INPUTS_DIR / 'input_5') as fp:
-        lines = fp.readlines()
-    logger.info(f'Part 1: {process_crates(lines)}')
-    logger.info(f'Part 2: {process_crates(lines, multicrate_moves=True)}')
-
-
 if __name__ == '__main__':
-    main()
+    data = read_input(5)
+    logger.info(f'Part 1: {process_crates(data)}')
+    logger.info(f'Part 2: {process_crates(data, multicrate_moves=True)}')
