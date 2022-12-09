@@ -8,6 +8,7 @@ logger.remove()
 logger.add(stderr, level='INFO')
 
 INPUTS_DIR = Path(__file__).parent.parent / 'inputs'
+SOLUTIONS_DIR = Path(__file__).parent.parent / 'solutions'
 
 
 def read_input(day: int) -> str:
