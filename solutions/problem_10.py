@@ -2,7 +2,7 @@
 # https://adventofcode.com/2022/day/10
 from loguru import logger
 
-from solutions import INPUTS_DIR
+from solutions import read_input
 
 
 def parse_cycles(data: str) -> list[int]:
@@ -43,8 +43,7 @@ def print_pixels(pixels: str):
 
 
 if __name__ == '__main__':
-    with open(INPUTS_DIR / 'input_10') as fp:
-        data = fp.read()
+    data = read_input(10)
 
     cycles = parse_cycles(data)
     logger.info(f'Part 1: {get_total_signal_strength(cycles)}')
