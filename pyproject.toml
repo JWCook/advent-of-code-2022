@@ -7,9 +7,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-loguru = "^0.6.0"
-pandas = "^1.5.2"
-seaborn = "^0.12.1"
+loguru = ">=0.6"
+pandas = ">=1.5"
+seaborn = ">=0.12"
+networkx = ">=2.8"
 
 [build-system]
 requires = ["poetry-core"]
