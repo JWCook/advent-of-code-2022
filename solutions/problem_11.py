@@ -2,7 +2,7 @@
 # https://adventofcode.com/2022/day/11
 import re
 from dataclasses import dataclass, field
-from typing import Callable, Iterator
+from typing import Callable, Iterator, Optional
 
 from loguru import logger
 
@@ -27,15 +27,24 @@ class Monkey:
     next_true: int = field()
     next_false: int = field()
     n_inspected: int = field(default=0)
+    modulo: Optional[int] = field(default=None)
+    divide_after_inspect: bool = field(default=True)
 
     @classmethod
-    def parse(cls, monkey_str: str) -> 'Monkey':
+    def parse(cls, monkey_str: str, divide_after_inspect: bool = True) -> 'Monkey':
         tokens = MONKEY_PATTERN.match(monkey_str).groups()
 
+        # Parse operation function; None is placeholder for current item value
+        op_tokens = tokens[2].split()
+        lhs = None if op_tokens[0] == 'old' else int(op_tokens[0])
+        rhs = None if op_tokens[2] == 'old' else int(op_tokens[2])
+        if op_tokens[1] == '+':
+            operator = lambda x, y: x + y
+        if op_tokens[1] == '*':
+            operator = lambda x, y: x * y
+
         def operation(x: int):
-            operation_str = tokens[2].replace('old', str(x))
-            print(f'Op: {operation_str} | {x} | {eval(operation_str)}')
-            return eval(operation_str)
+            return operator(lhs or x, rhs or x)
 
         return cls(
             id=int(tokens[0]),
@@ -44,6 +53,7 @@ class Monkey:
             test_divisible=int(tokens[3]),
             next_true=int(tokens[4]),
             next_false=int(tokens[5]),
+            divide_after_inspect=divide_after_inspect,
         )
 
     @property
@@ -57,13 +67,27 @@ class Monkey:
         self.items = []
 
     def next_monkey(self, item: int) -> tuple[int, int]:
-        item = int(self.operation(item) / 3)
-        passed_test = item % self.test_divisible == 0
-        return item, self.next_true if passed_test else self.next_false
+        item = self.operation(item)
+        if self.divide_after_inspect:
+            item = int(item / 3)
+        else:
+            item %= self.modulo
+
+        if item % self.test_divisible == 0:
+            return item, self.next_true
+        else:
+            return item, self.next_false
 
 
-def run_rounds(data: str, n_rounds: int) -> list[Monkey]:
-    monkeys = {m.id: m for m in [Monkey.parse(m) for m in data.split('Monkey ') if m]}
+def run_rounds(data: str, n_rounds: int, divide_after_inspect: bool = True) -> list[Monkey]:
+    monkeys = {
+        m.id: m for m in [Monkey.parse(m, divide_after_inspect) for m in data.split('Monkey ') if m]
+    }
+    modulo = 1
+    for m in monkeys.values():
+        modulo *= m.test_divisible
+    for m in monkeys.values():
+        m.modulo = modulo
 
     def run_round():
         for monkey in monkeys.values():
@@ -88,6 +112,8 @@ def monkey_business(monkeys: list[Monkey]) -> int:
 
 
 if __name__ == '__main__':
-    data = read_input('11a')
-    monkeys = run_rounds(data, 20)
+    data = read_input(11)
+    monkeys = run_rounds(data, 20, divide_after_inspect=True)
     logger.info(f'Part 1: {monkey_business(monkeys)}')
+    monkeys = run_rounds(data, 10000, divide_after_inspect=False)
+    logger.info(f'Part 2: {monkey_business(monkeys)}')
